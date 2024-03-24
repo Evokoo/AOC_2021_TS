@@ -5,47 +5,85 @@ import TOOLS from "../00/tools";
 export function solveA(fileName: string, day: string): number {
 	const data = TOOLS.readData(fileName, day),
 		binaryNumbers = parseInput(data),
-		result = findPowerConsumption(binaryNumbers);
+		powerConsumption = getPowerConsumption(binaryNumbers);
 
-	console.log(result);
-
-	return result;
+	return powerConsumption;
 }
 export function solveB(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+	const data = TOOLS.readData(fileName, day),
+		binaryNumbers = parseInput(data),
+		lifeSupportRating = getLifeSupportRating(binaryNumbers);
+
+	console.log(lifeSupportRating);
+
+	return lifeSupportRating;
 }
 
 //Run
-solveA("example_a", "03");
+solveB("example_b", "03");
 
 // Functions
 function parseInput(data: string) {
 	return data.split("\r\n").map((bin) => [...bin].map(Number));
 }
-function findPowerConsumption(binaryNumbers: number[][]) {
-	const gamma: number[] = Array(binaryNumbers[0].length).fill(0);
-	const epsilon: number[] = Array(binaryNumbers[0].length).fill(0);
-	const threshold = binaryNumbers.length / 2;
+function analyseBits(binaryNumbers: number[][]) {
+	const mostCommon: number[] = Array(binaryNumbers[0].length).fill(0);
+	const leastCommon: number[] = Array(binaryNumbers[0].length).fill(0);
 
 	for (let x = 0; x < binaryNumbers[0].length; x++) {
-		let score = 0;
+		let score: Record<string, number> = { "0": 0, "1": 0 };
 
 		for (let y = 0; y < binaryNumbers.length; y++) {
-			score += binaryNumbers[y][x];
+			score[String(binaryNumbers[y][x])]++;
 		}
 
-		if (score > threshold) {
-			gamma[x] = 1;
-			epsilon[x] = 0;
+		if (score["0"] > score["1"]) {
+			mostCommon[x] = 0;
+			leastCommon[x] = 1;
+		} else if (score["0"] < score["1"]) {
+			mostCommon[x] = 1;
+			leastCommon[x] = 0;
 		} else {
-			gamma[x] = 0;
-			epsilon[x] = 1;
+			mostCommon[x] = 1;
+			leastCommon[x] = 0;
 		}
 	}
 
-	const gammaRate = parseInt(gamma.join(""), 2);
-	const epsilonRate = parseInt(epsilon.join(""), 2);
+	return [mostCommon, leastCommon];
+}
+function getPowerConsumption(binaryNumbers: number[][]) {
+	const [mostCommon, leastCommon] = analyseBits(binaryNumbers);
+	const gammaRate = parseInt(mostCommon.join(""), 2);
+	const epsilonRate = parseInt(leastCommon.join(""), 2);
 
 	return gammaRate * epsilonRate;
+}
+function getLifeSupportRating(binaryNumbers: number[][]) {
+	let O2 = binaryNumbers;
+	let CO2 = binaryNumbers;
+
+	for (let i = 0; i < binaryNumbers[0].length; i++) {
+		const [mostCommon, _] = analyseBits(O2);
+
+		if (O2.length === 1) {
+			break;
+		} else {
+			O2 = O2.filter((num) => num[i] === mostCommon[i]);
+		}
+	}
+
+	for (let i = 0; i < binaryNumbers[0].length; i++) {
+		const [_, leastCommon] = analyseBits(CO2);
+
+		if (CO2.length === 1) {
+			break;
+		} else {
+			CO2 = CO2.filter((num) => num[i] === leastCommon[i]);
+		}
+	}
+
+	const O2Rate = parseInt(O2[0].join(""), 2);
+	const CO2Rate = parseInt(CO2[0].join(""), 2);
+
+	return O2Rate * CO2Rate;
 }
