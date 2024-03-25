@@ -6,17 +6,18 @@ export function solveA(fileName: string, day: string): number {
 	const data = TOOLS.readData(fileName, day),
 		{ drawn, games } = parseInput(data),
 		score = playBingo(drawn, games);
-
-	console.log(score);
 	return score;
 }
 export function solveB(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+	const data = TOOLS.readData(fileName, day),
+		{ drawn, games } = parseInput(data),
+		score = playBingo(drawn, games, true);
+
+	return score;
 }
 
 //Run
-solveA("example_a", "04");
+solveB("example_b", "04");
 
 // Functions
 type Point = { x: number; y: number };
@@ -54,9 +55,15 @@ function parseInput(data: string) {
 
 	return { drawn, games };
 }
-function playBingo(drawn: number[], games: Game[]) {
+function playBingo(drawn: number[], games: Game[], partB: boolean = false) {
+	const completeGames: Set<number> = new Set();
+
 	for (let currentNumber of drawn) {
 		for (let i = 0; i < games.length; i++) {
+			if (completeGames.has(i)) {
+				continue;
+			}
+
 			const currentGame = games[i];
 			const rows = currentGame.lineScore.y;
 			const columns = currentGame.lineScore.x;
@@ -77,7 +84,15 @@ function playBingo(drawn: number[], games: Game[]) {
 					score += number;
 				}
 
-				return score * currentNumber;
+				if (partB) {
+					completeGames.add(i);
+
+					if (completeGames.size === games.length) {
+						return score * currentNumber;
+					}
+				} else {
+					return score * currentNumber;
+				}
 			}
 		}
 	}
