@@ -24,7 +24,6 @@ type Point = { x: number; y: number };
 type LineScore = [number, number, number, number, number];
 type Game = {
 	location: Map<number, Point>;
-	board: number[][];
 	lineScore: { x: LineScore; y: LineScore };
 };
 
@@ -50,7 +49,7 @@ function parseInput(data: string) {
 			}
 		}
 
-		games.push({ location, board, lineScore });
+		games.push({ location, lineScore });
 	}
 
 	return { drawn, games };
