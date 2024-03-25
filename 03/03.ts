@@ -14,8 +14,6 @@ export function solveB(fileName: string, day: string): number {
 		binaryNumbers = parseInput(data),
 		lifeSupportRating = getLifeSupportRating(binaryNumbers);
 
-	console.log(lifeSupportRating);
-
 	return lifeSupportRating;
 }
 
