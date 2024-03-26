@@ -11,17 +11,17 @@ describe(`AOC 2021 - Day ${currentDay}`, () => {
 		});
 
 		test("Solution", () => {
-			expect(solveA("input", currentDay)).toBe(null);
+			expect(solveA("input", currentDay)).toBe(353079);
 		});
 	});
 
-	// describe("Part B", () => {
-	// 	test("Example", () => {
-	// 		expect(solveB("example_b", currentDay)).toBe(null);
-	// 	});
+	describe("Part B", () => {
+		test("Example", () => {
+			expect(solveB("example_b", currentDay)).toBe(26984457539);
+		});
 
-	// 	test("Solution", () => {
-	// 		expect(solveB("input", currentDay)).toBe(null);
-	// 	});
-	// });
+		test("Solution", () => {
+			expect(solveB("input", currentDay)).toBe(1605400130036);
+		});
+	});
 });

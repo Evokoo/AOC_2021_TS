@@ -14,35 +14,36 @@ export function solveB(fileName: string, day: string): number {
 		fish = parseInput(data),
 		count = simulateFish(fish, 256);
 
-	console.log(count);
-
 	return count;
 }
 
 //Run
-solveA("example_a", "06");
+solveB("example_b", "06");
 
 // Functions
 function parseInput(data: string) {
 	return data.split(",").map(Number);
 }
 function simulateFish(fish: number[], days: number) {
-	for (let day = 0; day < days; day++) {
-		const newFish: number[] = [];
+	let spawnDay: Map<number, number> = new Map();
+	let count = fish.length;
 
-		for (let i = 0; i < fish.length; i++) {
-			const remainingDays = fish[i] - 1;
-
-			if (remainingDays < 0) {
-				fish[i] = 6;
-				newFish.push(8);
-			} else {
-				fish[i] = remainingDays;
-			}
-		}
-
-		fish = fish.concat(newFish);
+	for (let i = 0; i < fish.length; i++) {
+		const day = fish[i] + 1;
+		spawnDay.set(day, (spawnDay.get(day) ?? 0) + 1);
 	}
 
-	return fish.length;
+	for (let day = 0; day <= days; day++) {
+		if (spawnDay.has(day)) {
+			const newFish = spawnDay.get(day)!;
+
+			spawnDay.set(day + 7, (spawnDay.get(day + 7) ?? 0) + newFish);
+			spawnDay.set(day + 9, (spawnDay.get(day + 9) ?? 0) + newFish);
+
+			count += newFish;
+			spawnDay.delete(day);
+		}
+	}
+
+	return count;
 }
