@@ -3,8 +3,11 @@ import TOOLS from "../00/tools";
 
 //Solutions
 export function solveA(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+	const data = TOOLS.readData(fileName, day),
+		entries = parseInput(data),
+		count = countDigits(entries);
+
+	return count;
 }
 export function solveB(fileName: string, day: string): number {
 	const data = TOOLS.readData(fileName, day);
@@ -15,17 +18,10 @@ export function solveB(fileName: string, day: string): number {
 solveA("example_a", "08");
 
 // Functions
-const numberSegments = {
-	2: [1],
-	3: [7],
-	4: [4],
-	5: [2, 3, 5],
-	6: [6, 9],
-	7: [8],
-};
+type Entry = Record<string, string[]>;
 
 function parseInput(data: string) {
-	const entries: Record<string, string[]>[] = [];
+	const entries: Entry[] = [];
 
 	for (let entry of data.split("\r\n")) {
 		const [signal, output] = entry
@@ -34,5 +30,16 @@ function parseInput(data: string) {
 		entries.push({ signal, output });
 	}
 
-	console.log(entries);
+	return entries;
+}
+function countDigits(entries: Entry[]) {
+	let count = 0;
+
+	for (const { output } of entries) {
+		for (let combination of output) {
+			if ([2, 3, 4, 7].includes(combination.length)) count++;
+		}
+	}
+
+	return count;
 }
