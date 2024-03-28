@@ -11,7 +11,7 @@ describe(`AOC 2021 - Day ${currentDay}`, () => {
 		});
 
 		test("Solution", () => {
-			expect(solveA("input", currentDay)).toBe(null);
+			expect(solveA("input", currentDay)).toBe(294195);
 		});
 	});
 
