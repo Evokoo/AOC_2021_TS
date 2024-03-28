@@ -67,7 +67,7 @@ function simulateFlashes(
 		flashing.clear();
 	}
 
-	function getNeighbours(point: Point) {
+	function getNeighbours(point: Point): Point[] {
 		const neighbours: Point[] = [];
 
 		for (let [nx, ny] of [
@@ -89,7 +89,7 @@ function simulateFlashes(
 
 		return neighbours;
 	}
-	function disperseEnergy(point: Point) {
+	function disperseEnergy(point: Point): void {
 		const queue: Point[] = [point];
 
 		while (queue.length) {
