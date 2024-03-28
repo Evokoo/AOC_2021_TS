@@ -10,12 +10,15 @@ export function solveA(fileName: string, day: string): number {
 	return flashes;
 }
 export function solveB(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+	const data = TOOLS.readData(fileName, day),
+		grid = parseInput(data),
+		step = simulateFlashes(grid, Infinity, true);
+
+	return step;
 }
 
 //Run
-solveA("example_a", "11");
+solveB("example_b", "11");
 
 // Functions
 type Point = { x: number; y: number };
@@ -23,7 +26,11 @@ type Point = { x: number; y: number };
 function parseInput(data: string) {
 	return data.split("\r\n").map((row) => [...row].map(Number));
 }
-function simulateFlashes(grid: number[][], steps: number) {
+function simulateFlashes(
+	grid: number[][],
+	steps: number,
+	synchro: boolean = false
+) {
 	const width = grid[0].length;
 	const height = grid.length;
 
@@ -31,7 +38,7 @@ function simulateFlashes(grid: number[][], steps: number) {
 
 	const flashing: Set<string> = new Set();
 
-	for (let step = 0; step < steps; step++) {
+	for (let step = 1; step <= steps; step++) {
 		for (let y = 0; y < height; y++) {
 			for (let x = 0; x < width; x++) {
 				const coord = `${x},${y}`;
@@ -45,6 +52,10 @@ function simulateFlashes(grid: number[][], steps: number) {
 					}
 				}
 			}
+		}
+
+		if (synchro && flashing.size === width * height) {
+			return step;
 		}
 
 		for (let point of flashing) {
