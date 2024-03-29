@@ -10,16 +10,26 @@ export function solveA(fileName: string, day: string): number {
 	return routes.size;
 }
 export function solveB(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+	const data = TOOLS.readData(fileName, day),
+		connections = parseInput(data),
+		routes = findRoutes(connections, true);
+
+	console.log(routes.size);
+
+	return routes.size;
 }
 
 //Run
-solveA("example_a", "12");
+solveB("example_b", "12");
 
 // Functions
 type Connections = Map<string, Set<string>>;
-type Route = { location: string; visited: Set<string>; route: string[] };
+type Route = {
+	location: string;
+	visited: Set<string>;
+	route: string[];
+	revisit: boolean;
+};
 
 function parseInput(data: string) {
 	const connections: Connections = new Map();
@@ -33,9 +43,14 @@ function parseInput(data: string) {
 
 	return connections;
 }
-function findRoutes(connections: Connections) {
+function findRoutes(connections: Connections, canRevisit: boolean = false) {
 	const queue: Route[] = [
-		{ location: "start", visited: new Set(["start"]), route: ["start"] },
+		{
+			location: "start",
+			visited: new Set(["start"]),
+			route: ["start"],
+			revisit: true,
+		},
 	];
 	const uniqueRoutes: Set<string> = new Set();
 
@@ -48,14 +63,31 @@ function findRoutes(connections: Connections) {
 		}
 
 		for (let path of connections.get(current.location)!) {
-			if (current.visited.has(path)) continue;
+			if (path === "start") continue;
+
+			let updatedVisit: Set<string>;
+			let revistStatus: boolean;
+
+			if (/^[a-z]/.test(path)) {
+				if (canRevisit && current.revisit && current.route.includes(path)) {
+					updatedVisit = new Set([...current.visited, path]);
+					revistStatus = false;
+				} else if (current.visited.has(path)) {
+					continue;
+				} else {
+					updatedVisit = new Set([...current.visited, path]);
+					revistStatus = current.revisit;
+				}
+			} else {
+				updatedVisit = current.visited;
+				revistStatus = current.revisit;
+			}
 
 			queue.push({
 				location: path,
-				visited: /^[a-z]/.test(path)
-					? new Set([...current.visited, path])
-					: current.visited,
+				visited: updatedVisit,
 				route: [...current.route, path],
+				revisit: revistStatus,
 			});
 		}
 	}
