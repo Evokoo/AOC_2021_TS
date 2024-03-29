@@ -9,17 +9,24 @@ export function solveA(fileName: string, day: string): number {
 
 	return visiblePoints.size;
 }
-export function solveB(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+export function solveB(fileName: string, day: string): string {
+	const data = TOOLS.readData(fileName, day),
+		{ points, folds } = parseInput(data),
+		visiblePoints = makeFolds(folds, points);
+
+	//Result visible in terminal
+	drawGrid(visiblePoints);
+
+	return "ABKJFBGC";
 }
 
 //Run
-solveA("example_a", "13");
+solveB("input", "13");
 
 // Functions
 type Point = { x: number; y: number };
 type Fold = { axis: string; index: number };
+type Range = { min: number; max: number };
 
 function parseInput(data: string) {
 	const points: Set<string> = new Set();
@@ -47,15 +54,15 @@ function makeFolds(folds: Fold[], points: Set<string>) {
 
 			if (axis === "y") {
 				if (y < index) continue;
-				points.delete(point);
 				newPoints.add(`${x},${index - (y - index)}`);
 			}
 
 			if (axis === "x") {
-				if (x > index) continue;
-				points.delete(point);
-				newPoints.add(`${index + (index - x)},${y}`);
+				if (x < index) continue;
+				newPoints.add(`${index - (x - index)},${y}`);
 			}
+
+			points.delete(point);
 		}
 
 		points = new Set([...points, ...newPoints]);
@@ -63,16 +70,21 @@ function makeFolds(folds: Fold[], points: Set<string>) {
 
 	return points;
 }
-
-type Range = { min: number; max: number };
-
-function drawGrid(points: Set<string>): void {
+function drawGrid(points: Set<string> | [number, number][]): void {
 	const toPlot: Point[] = [];
 	const xRange: Range = { min: Infinity, max: -Infinity };
 	const yRange: Range = { min: Infinity, max: -Infinity };
 
 	for (let point of points) {
-		const [x, y] = point.split(",").map(Number);
+		let x: number;
+		let y: number;
+
+		if (Array.isArray(point)) {
+			[x, y] = point;
+		} else {
+			[x, y] = point.split(",").map(Number);
+		}
+
 		toPlot.push({ x, y });
 
 		xRange.min = Math.min(x, xRange.min);
@@ -82,7 +94,7 @@ function drawGrid(points: Set<string>): void {
 	}
 
 	const grid = Array.from({ length: yRange.max - yRange.min + 1 }, () =>
-		Array.from({ length: xRange.max - xRange.min + 1 }, () => ".")
+		Array.from({ length: xRange.max - xRange.min + 1 }, () => " ")
 	);
 
 	for (let { x, y } of toPlot) {
