@@ -14,8 +14,6 @@ export function solveB(fileName: string, day: string): number {
 		connections = parseInput(data),
 		routes = findRoutes(connections, true);
 
-	console.log(routes.size);
-
 	return routes.size;
 }
 
