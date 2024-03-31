@@ -10,12 +10,15 @@ export function solveA(fileName: string, day: string): number {
 	return lowestRisk;
 }
 export function solveB(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+	const data = TOOLS.readData(fileName, day),
+		cave = parseInput(data, true),
+		lowestRisk = navigateCave(cave);
+
+	return lowestRisk;
 }
 
 //Run
-solveA("example_a", "15");
+solveB("example_b", "15");
 
 // Functions
 type Point = { x: number; y: number };
@@ -27,14 +30,41 @@ type Route = {
 	fCost: number;
 };
 
-function parseInput(data: string) {
-	const grid = data.split("\r\n").map((row) => [...row].map(Number));
+function parseInput(data: string, expandGrid: boolean = false) {
+	const baseGrid = data.split("\r\n").map((row) => [...row].map(Number));
 	const start = { x: 0, y: 0 };
-	const end = { x: grid[0].length - 1, y: grid.length - 1 };
+	const size = baseGrid.length;
 
-	return { grid, start, end };
+	if (expandGrid) {
+		const expandedGrid = Array.from({ length: size * 5 }, () =>
+			Array.from({ length: size * 5 }, () => 0)
+		);
+
+		for (let y = 0; y < size * 5; y++) {
+			for (let x = 0; x < size * 5; x++) {
+				let value: number;
+
+				if (x >= size) {
+					value = expandedGrid[y][x - size] + 1;
+				} else if (y >= size) {
+					value = expandedGrid[y - size][x] + 1;
+				} else {
+					value = baseGrid[y][x];
+				}
+
+				expandedGrid[y][x] = value > 9 ? 1 : value;
+			}
+		}
+
+		return {
+			grid: expandedGrid,
+			start,
+			end: { x: size * 5 - 1, y: size * 5 - 1 },
+		};
+	}
+
+	return { grid: baseGrid, start, end: { x: size - 1, y: size - 1 } };
 }
-
 function navigateCave({ grid, start, end }: Cave) {
 	const queue: Route[] = [
 		{
