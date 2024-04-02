@@ -62,7 +62,6 @@ function getPacketHeader(packet: string): [number, number] {
 
 	return [version, typeID];
 }
-
 function processPacket(packet: string, count: number = -1): number {
 	if (!packet || parseInt(packet, 2) === 0) {
 		return 0;
@@ -81,7 +80,6 @@ function processPacket(packet: string, count: number = -1): number {
 			index += 5;
 		}
 
-		// const val = literalPacketValue(packet.slice(6, index + 5));
 		return version + processPacket(packet.slice(index + 5), -1);
 	}
 
