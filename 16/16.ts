@@ -3,10 +3,11 @@ import TOOLS from "../00/tools";
 
 //Solutions
 export function solveA(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	console.log(processPacket(data));
+	const data = TOOLS.readData(fileName, day),
+		packet = parseInput(data),
+		versionTotal = processPacket(packet);
 
-	return 0;
+	return versionTotal;
 }
 export function solveB(fileName: string, day: string): number {
 	const data = TOOLS.readData(fileName, day);
@@ -17,32 +18,7 @@ export function solveB(fileName: string, day: string): number {
 solveA("example_a", "16");
 
 // Functions
-function hexToBin(hex: string) {
-	return;
-}
-
 function parseInput(data: string) {
-	return data.split("\r\n");
-}
-
-function literalPacketValue(packet: string): [number, string] {
-	let value: string = "";
-
-	while (true) {
-		console.log(packet);
-		const group = packet.slice(0, 5).padEnd(5, "0");
-
-		value += group.slice(1);
-		packet = packet.slice(5);
-
-		if (group[0] === "0") {
-			break;
-		}
-	}
-
-	return [parseInt(value, 2), packet];
-}
-function convertPacket(hex: string) {
 	const lookup: Record<string, string> = {
 		"0": "0000",
 		"1": "0001",
@@ -62,57 +38,65 @@ function convertPacket(hex: string) {
 		F: "1111",
 	};
 
-	return hex.replace(/./g, (hex) => lookup[hex]);
+	return data.replace(/./g, (hex) => lookup[hex]);
 }
-function getPacketHeader(packet: string): [string, string, string] {
-	const version = packet.slice(0, 3);
-	const typeID = packet.slice(3, 6);
+function literalPacketValue(packet: string): number {
+	let value: string = "";
 
-	return [version, typeID, packet.slice(6)];
-}
+	while (true) {
+		const group = packet.slice(0, 5).padEnd(5, "0");
 
-function processPacket(packet: string, versionTotal: number = 0) {
-	if (/^0+$/.test(packet) || !packet) {
-		return versionTotal;
-	}
+		value += group.slice(1);
+		packet = packet.slice(5);
 
-	if (/[^0-1]+/.test(packet)) {
-		packet = convertPacket(packet);
-	}
-
-	const [version, ID, body] = getPacketHeader(packet);
-	versionTotal += parseInt(version, 2);
-
-	if (ID === "100") {
-		const [_, remainingPacket] = literalPacketValue(body);
-		return processPacket(remainingPacket, versionTotal);
-	} else {
-		if (body[0] === "0") {
-			const packetSize = parseInt(body.slice(1, 16), 2);
-			return processPacket(body.slice(16, 16 + packetSize), versionTotal);
-		} else {
-			const packetCount = parseInt(body.slice(1, 12), 2);
-
-			let subBody = body.slice(12);
-			let subVersionTotal = 0;
-			let packetSize = { start: 7, end: 0 };
-
-			for (let count = 0; count < packetCount; count++) {
-				let [subVersion, subID] = [subBody.slice(0, 3), subBody.slice(3, 6)];
-
-				if (subID === "100") {
-					while (subBody[packetSize.start] !== "0") {
-						packetSize.start += 5;
-					}
-
-					subVersionTotal += parseInt(subVersion, 2);
-					subBody = subBody.slice(packetSize.start +);
-				}
-
-				packetSize.start = 7;
-			}
-
-			console.log(versionTotal + subVersionTotal);
+		if (group[0] === "0") {
+			break;
 		}
+	}
+
+	return parseInt(value, 2);
+}
+function getPacketHeader(packet: string): [number, number] {
+	const version = parseInt(packet.slice(0, 3), 2);
+	const typeID = parseInt(packet.slice(3, 6), 2);
+
+	return [version, typeID];
+}
+
+function processPacket(packet: string, count: number = -1): number {
+	if (!packet || parseInt(packet, 2) === 0) {
+		return 0;
+	}
+
+	if (count === 0) {
+		return processPacket(packet, -1);
+	}
+
+	const [version, id] = getPacketHeader(packet);
+
+	if (id === 4) {
+		let index = 6;
+
+		while (packet[index] === "1") {
+			index += 5;
+		}
+
+		// const val = literalPacketValue(packet.slice(6, index + 5));
+		return version + processPacket(packet.slice(index + 5), -1);
+	}
+
+	switch (packet[6]) {
+		case "0":
+			const packetSize = parseInt(packet.slice(7, 22), 2);
+			return (
+				version +
+				processPacket(packet.slice(22, 22 + packetSize), -1) +
+				processPacket(packet.slice(22 + packetSize), count - 1)
+			);
+		case "1":
+			const packetCount = parseInt(packet.slice(7, 18), 2);
+			return version + processPacket(packet.slice(18), packetCount);
+		default:
+			throw Error("Invalid length ID");
 	}
 }
