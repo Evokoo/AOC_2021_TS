@@ -1,6 +1,6 @@
 // Imports
 import TOOLS from "../00/tools";
-import { Dice, GameBoard, Player } from "./Gameboard";
+import { Dice, Board, Player } from "./GameAssets";
 
 //Solutions
 export function solveA(fileName: string, day: string): number {
@@ -23,7 +23,7 @@ function parseInput(data: string) {
 	return data.split("\r\n").map((str) => +str.slice(-1));
 }
 function playGame(players: number[]) {
-	const board = new GameBoard(10);
+	const board = new Board(10);
 	const dice = new Dice();
 	const p1 = new Player(players[0], board);
 	const p2 = new Player(players[1], board);

@@ -1,16 +1,15 @@
-class GameSpace {
+class BoardSpace {
 	value: number;
-	next: GameSpace | null;
+	next: BoardSpace | null;
 
 	constructor(value: number) {
 		this.value = value;
 		this.next = null;
 	}
 }
-
-export class GameBoard {
-	head: GameSpace | null;
-	tail: GameSpace | null;
+export class Board {
+	head: BoardSpace | null;
+	tail: BoardSpace | null;
 	size: number;
 
 	constructor(spaces: number) {
@@ -23,7 +22,7 @@ export class GameBoard {
 
 	private init = (spaces: number): void => {
 		for (let i = 1; i <= spaces; i++) {
-			let newNode = new GameSpace(i);
+			let newNode = new BoardSpace(i);
 
 			if (!this.head) {
 				this.head = newNode;
@@ -38,7 +37,7 @@ export class GameBoard {
 		}
 	};
 
-	public setPlayer = (space: number): GameSpace | null => {
+	public setPlayer = (space: number): BoardSpace | null => {
 		let current = this.head;
 
 		while (current) {
@@ -50,16 +49,7 @@ export class GameBoard {
 
 		throw Error("Space not found");
 	};
-
-	public movePlayer = (player: GameSpace, moves: number): GameSpace => {
-		for (let i = 0; i < moves; i++) {
-			player = player.next!;
-		}
-
-		return player;
-	};
 }
-
 export class Dice {
 	private dice: number[];
 	private counter: number;
@@ -76,7 +66,7 @@ export class Dice {
 		});
 	};
 
-	roll = (): number => {
+	public roll = (): number => {
 		const total = this.dice.reduce((a, b) => a + b, 0);
 
 		this.updateDice();
@@ -89,12 +79,11 @@ export class Dice {
 		return this.counter;
 	}
 }
-
 export class Player {
-	space: GameSpace | null;
+	space: BoardSpace | null;
 	score: number;
 
-	constructor(spaceNumber: number, board: GameBoard) {
+	constructor(spaceNumber: number, board: Board) {
 		this.space = board.setPlayer(spaceNumber);
 		this.score = 0;
 	}
