@@ -15,7 +15,7 @@ export function solveB(fileName: string, day: string): number {
 }
 
 //Run
-solveA("example_a", "22");
+solveB("example_b", "22");
 
 // Functions
 type Range = { min: number; max: number };
