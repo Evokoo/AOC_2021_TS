@@ -10,12 +10,15 @@ export function solveA(fileName: string, day: string): number {
 	return pixels;
 }
 export function solveB(fileName: string, day: string): number {
-	const data = TOOLS.readData(fileName, day);
-	return 0;
+	const data = TOOLS.readData(fileName, day),
+		inputData = parseInput(data),
+		pixels = enchanceImage(inputData, 50);
+
+	return pixels;
 }
 
 //Run
-solveA("example_a", "20");
+solveB("example_b", "20");
 
 // Functions
 type PixelMap = Map<string, boolean>;
@@ -91,8 +94,9 @@ function enchanceImage({ lookup, pixels, range }: InputData, cycles: number) {
 
 		for (let [coord, status] of updates) {
 			pixels.set(coord, status);
-			updates.delete(coord);
 		}
+
+		updates.clear();
 
 		range.x.min--;
 		range.x.max++;
